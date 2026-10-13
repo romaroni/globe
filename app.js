@@ -67,14 +67,15 @@
   const canvas = document.getElementById('globe');
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, DPR = 1;
-  const BASE_SPIN = reduceMotion ? 0.5 : 1;   // °/s at 1×; scales with playback speed
+  const BASE_SPIN = 360 / 86400;   // °/s: one turn per day at 1×, i.e. the real Earth; scales with playback speed
+  const MAX_DRAWN_PER_SEC = 3000;  // above this, draw a random sample of events (counters stay exact)
   const view = { zoom: reduceMotion ? 1 : 0.82, speed: 1, spin: 1 };   // spin: 0–1 factor, 0 while dragging
   const rotation = [new Date().getTimezoneOffset() / 4, -18, 0];                         // start over the viewer's longitude
   let simMs = Date.now();
   const enabled = Object.fromEntries(TYPES.map(t => [t.id, true]));
   const counts = Object.fromEntries(TYPES.map(t => [t.id, 0]));
   const events = [];   // { type, lon, lat, t0, life, city, country } or arcs with from/to
-  let world, countries, streams, lastTickerAt = 0, latestForTicker = null;
+  let world, countries, streams, lastTickerAt = 0, latestForTicker = null, seenSinceTick = 0;
 
   const projection = d3.geoOrthographic().clipAngle(90).precision(0.6);
   const path = d3.geoPath(projection, ctx);
@@ -139,6 +140,8 @@
 
   function spawn(simDtSec, now) {
     const life = 2600 / Math.pow(view.speed, 0.12);
+    const totalPerSec = TYPES.reduce((a, t) => a + (streams[t.id]?.perSec || 0), 0) * view.speed;
+    const drawShare = Math.min(1, MAX_DRAWN_PER_SEC / totalPerSec);
     for (const t of TYPES) {
       const st = streams[t.id];
       if (!st || !st.list.length) continue;
@@ -149,7 +152,7 @@
         const { h, dow } = localClock(city[1]);
         if (Math.random() * t.wmax > RHYTHM[t.id](h, dow)) continue;   // thinning by local hour
         counts[t.id]++;
-        if (!enabled[t.id]) continue;
+        if (!enabled[t.id] || Math.random() > drawShare) continue;
         let ev;
         if (t.arc) {
           const from = pickOrigin(st.orig, city);
@@ -162,7 +165,7 @@
           ev = { type: t.id, lon: city[1], lat: city[2], t0: now, life, city: city[0], country: c.name, h };
         }
         events.push(ev);
-        latestForTicker = ev;
+        if (Math.random() * ++seenSinceTick < 1) latestForTicker = ev;   // uniform sample since the last ticker line
       }
     }
     if (events.length > 5000) events.splice(0, events.length - 5000);
@@ -398,7 +401,7 @@
     spawn(dt * view.speed, now);
     draw(now);
     if (now - lastUi > 100) { updateLegend(); updateClock(); lastUi = now; }
-    if (latestForTicker && now - lastTickerAt > 700) { pushTicker(latestForTicker); latestForTicker = null; lastTickerAt = now; }
+    if (latestForTicker && now - lastTickerAt > 700) { pushTicker(latestForTicker); latestForTicker = null; seenSinceTick = 0; lastTickerAt = now; }
     requestAnimationFrame(frame);
   }
 
