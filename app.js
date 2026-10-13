@@ -67,7 +67,8 @@
   const canvas = document.getElementById('globe');
   const ctx = canvas.getContext('2d');
   let W = 0, H = 0, DPR = 1;
-  const view = { zoom: reduceMotion ? 1 : 0.82, speed: 1, spin: reduceMotion ? 1 : 5 };   // spin in °/s
+  const BASE_SPIN = reduceMotion ? 0.5 : 1;   // °/s at 1×; scales with playback speed
+  const view = { zoom: reduceMotion ? 1 : 0.82, speed: 1, spin: 1 };   // spin: 0–1 factor, 0 while dragging
   const rotation = [new Date().getTimezoneOffset() / 4, -18, 0];                         // start over the viewer's longitude
   let simMs = Date.now();
   const enabled = Object.fromEntries(TYPES.map(t => [t.id, true]));
@@ -383,7 +384,7 @@
   const endDrag = () => {
     if (!drag) return;
     drag = null; canvas.classList.remove('dragging');
-    spinAnim = animate(0, reduceMotion ? 1 : 5, { duration: 2.2, ease: 'easeIn', onUpdate: v => { view.spin = v; } });
+    spinAnim = animate(0, 1, { duration: 2.2, ease: 'easeIn', onUpdate: v => { view.spin = v; } });
   };
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
@@ -393,7 +394,7 @@
   function frame(now) {
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
     simMs += dt * 1000 * view.speed;
-    rotation[0] += view.spin * dt;
+    rotation[0] += BASE_SPIN * view.spin * view.speed * dt;
     spawn(dt * view.speed, now);
     draw(now);
     if (now - lastUi > 100) { updateLegend(); updateClock(); lastUi = now; }
