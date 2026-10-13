@@ -1,0 +1,58 @@
+iso2,type,rate_per_1000,year,source
+US,divorce,2.4,2022,CDC NCHS National Vital Statistics (45 reporting states)
+CA,divorce,1.1,2020,Statistics Canada
+MX,divorce,1.3,2022,INEGI Estadísticas de divorcios
+BR,divorce,2.0,2022,IBGE Estatísticas do Registro Civil
+AR,divorce,1.1,2019,approx. national civil registry reports
+CL,divorce,0.9,2019,approx. Registro Civil e Identificación
+CU,divorce,2.7,2021,UN Demographic Yearbook
+GB,divorce,1.5,2022,ONS (England and Wales rate applied UK-wide)
+IE,divorce,0.6,2022,Eurostat demo_ndivind
+FR,divorce,1.9,2021,Eurostat demo_ndivind
+DE,divorce,1.6,2022,Eurostat demo_ndivind
+NL,divorce,1.6,2022,Eurostat demo_ndivind
+BE,divorce,2.0,2022,Eurostat demo_ndivind
+LU,divorce,2.0,2022,Eurostat demo_ndivind
+CH,divorce,1.9,2022,Eurostat demo_ndivind
+AT,divorce,1.6,2022,Eurostat demo_ndivind
+IT,divorce,1.4,2022,Eurostat demo_ndivind
+ES,divorce,1.8,2022,Eurostat demo_ndivind
+PT,divorce,1.9,2022,Eurostat demo_ndivind
+GR,divorce,1.0,2021,Eurostat demo_ndivind
+DK,divorce,2.5,2022,Eurostat demo_ndivind
+SE,divorce,2.4,2022,Eurostat demo_ndivind
+NO,divorce,1.7,2022,Eurostat demo_ndivind
+FI,divorce,2.2,2022,Eurostat demo_ndivind
+PL,divorce,1.5,2022,Eurostat demo_ndivind
+CZ,divorce,2.1,2022,Eurostat demo_ndivind
+SK,divorce,1.6,2022,Eurostat demo_ndivind
+HU,divorce,1.5,2022,Eurostat demo_ndivind
+RO,divorce,1.4,2022,Eurostat demo_ndivind
+BG,divorce,1.4,2022,Eurostat demo_ndivind
+LT,divorce,2.9,2022,Eurostat demo_ndivind
+LV,divorce,2.9,2022,Eurostat demo_ndivind
+EE,divorce,2.0,2022,Eurostat demo_ndivind
+RU,divorce,4.6,2021,Rosstat
+UA,divorce,2.6,2021,State Statistics Service of Ukraine
+BY,divorce,3.4,2021,Belstat
+MD,divorce,2.9,2021,UN Demographic Yearbook
+KZ,divorce,2.6,2021,Bureau of National Statistics Kazakhstan
+GE,divorce,2.7,2021,Geostat
+TR,divorce,2.1,2022,TurkStat
+IL,divorce,1.7,2021,UN Demographic Yearbook
+EG,divorce,2.5,2022,CAPMAS
+IR,divorce,2.4,2021,National Organization for Civil Registration
+SA,divorce,1.6,2021,GASTAT (approx.)
+JO,divorce,2.6,2021,Department of Statistics Jordan (approx.)
+TN,divorce,1.3,2019,approx. national statistics
+DZ,divorce,1.5,2019,approx. ONS Algeria
+CN,divorce,1.8,2023,Ministry of Civil Affairs (2.59M couples)
+JP,divorce,1.5,2022,MHLW Vital Statistics
+KR,divorce,1.8,2022,Statistics Korea
+TH,divorce,1.8,2022,Department of Provincial Administration (approx.)
+ID,divorce,1.9,2022,Badan Pusat Statistik (court divorce cases)
+AU,divorce,1.9,2022,ABS Marriages and Divorces
+NZ,divorce,1.6,2022,Stats NZ
+ZA,divorce,0.4,2021,Stats SA Marriages and Divorces
+IN,marriage,7.0,2023,estimate (~10M weddings/yr; no national registry series)
+CN,marriage,5.4,2023,Ministry of Civil Affairs (7.68M couples registered)

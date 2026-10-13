@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Every Second on Earth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one full-bleed night globe; the instrument panel (legend, clock, speed) floats on the left,
+   a quiet ticker of the latest events sits bottom-right. Single dark theme by design: it's a night sky. */
+:root {
+  color-scheme: dark;
+  --ink: #06080b;            /* space */
+  --ocean: #070a0e;
+  --land: #1b2129;
+  --line: rgba(232, 226, 210, 0.16);   /* cream hairlines */
+  --fg: #ece6d6;             /* cream text */
+  --fg-dim: rgba(236, 230, 214, 0.56);
+  --fg-faint: rgba(236, 230, 214, 0.28);
+  --panel: rgba(8, 11, 15, 0.72);
+
+  --c-birth: #ffd24a;
+  --c-death: #8a95ad;
+  --c-marriage: #ff5d8f;
+  --c-divorce: #a77bff;
+  --c-graduation: #3dd6c6;
+  --c-business: #ff8a3d;
+  --c-patent: #5b9dff;
+  --c-migration: #b6f06a;
+
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --gutter: 20px;
+}
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--ink); color: var(--fg);
+  font: 14px/1.45 var(--f-display); overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+#globe { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+#globe.dragging { cursor: grabbing; }
+
+.panel {
+  position: fixed; z-index: 2;
+  top: calc(env(safe-area-inset-top, 0px) + var(--gutter)); left: var(--gutter);
+  width: 300px; max-width: calc(100vw - 2 * var(--gutter));
+  display: grid; gap: 18px;
+}
+.title h1 {
+  margin: 0; font-weight: 300; font-stretch: 125%;
+  font-size: 26px; line-height: 1.05; letter-spacing: -0.01em; text-wrap: balance;
+}
+.title h1 b { font-weight: 700; }
+.title p { margin: 6px 0 0; color: var(--fg-dim); font-size: 13px; max-width: 34ch; }
+
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.legend button {
+  all: unset; box-sizing: border-box; width: 100%; cursor: pointer;
+  display: grid; grid-template-columns: 14px 1fr auto auto; align-items: baseline; column-gap: 10px;
+  padding: 5px 8px; margin-inline: -8px; border-radius: 4px;
+}
+.legend button:hover { background: rgba(236, 230, 214, 0.05); }
+.legend button:focus-visible { outline: 1px solid var(--fg-dim); }
+.legend .swatch { width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); align-self: center; }
+.legend .swatch.arc { width: 14px; height: 2px; border-radius: 2px; }
+.legend .label { font-stretch: 100%; font-size: 14px; }
+.legend .count, .legend .rate { font: 500 12px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.legend .count { color: var(--fg); min-width: 7ch; text-align: right; }
+.legend .rate { color: var(--fg-faint); min-width: 6ch; text-align: right; }
+.legend button[aria-pressed="false"] { opacity: 0.32; }
+.legend button[aria-pressed="false"] .swatch { box-shadow: none; }
+.legend-head {
+  display: grid; grid-template-columns: 14px 1fr auto auto; column-gap: 10px;
+  font: 500 10px/1 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-faint);
+  padding-bottom: 6px; border-bottom: 1px solid var(--line); margin-bottom: 4px;
+}
+.legend-head span:nth-child(3) { min-width: 7ch; text-align: right; }
+.legend-head span:nth-child(4) { min-width: 6ch; text-align: right; }
+
+.controls { display: grid; gap: 10px; }
+.clock { font: 500 12px/1.3 var(--f-mono); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+.clock strong { color: var(--fg); font-weight: 500; }
+.speed { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px; width: max-content; }
+.speed button {
+  all: unset; cursor: pointer; font: 500 12px/1 var(--f-mono); color: var(--fg-dim);
+  padding: 6px 12px; border-radius: 999px; position: relative;
+}
+.speed button[aria-pressed="true"] { color: var(--ink); }
+.speed button:focus-visible { outline: 1px solid var(--fg-dim); }
+.speed .pill { position: absolute; inset: 2px auto 2px 2px; border-radius: 999px; background: var(--fg); z-index: -1; }
+.speed { position: relative; isolation: isolate; }
+
+.about summary {
+  cursor: pointer; list-style: none; font: 500 11px/1 var(--f-mono); letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--fg-dim); width: max-content;
+}
+.about summary::-webkit-details-marker { display: none; }
+.about summary::before { content: "+ "; }
+.about[open] summary::before { content: "– "; }
+.about summary:focus-visible { outline: 1px solid var(--fg-dim); }
+.about .body {
+  margin-top: 10px; padding: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  font-size: 12.5px; color: var(--fg-dim); max-height: 46vh; overflow: auto; display: grid; gap: 8px;
+  backdrop-filter: blur(8px);
+}
+.about .body p { margin: 0; }
+.about .body table { border-collapse: collapse; width: 100%; font: 11px/1.35 var(--f-mono); }
+.about .body td { padding: 3px 0; vertical-align: top; border-top: 1px solid var(--line); }
+.about .body td:first-child { color: var(--fg); padding-right: 8px; white-space: nowrap; }
+.about .body td.n { text-align: right; padding-left: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.ticker {
+  position: fixed; z-index: 2; right: var(--gutter);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--gutter));
+  width: 300px; max-width: calc(100vw - 2 * var(--gutter));
+  list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column-reverse; gap: 4px;
+  pointer-events: none;
+}
+.ticker li {
+  display: grid; grid-template-columns: 8px 1fr auto; column-gap: 10px; align-items: baseline;
+  font-size: 13px; white-space: nowrap;
+}
+.ticker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c); align-self: center; box-shadow: 0 0 8px var(--c); }
+.ticker .what { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.ticker .what em { font-style: normal; color: var(--fg-dim); }
+.ticker .when { font: 11px/1 var(--f-mono); color: var(--fg-faint); font-variant-numeric: tabular-nums; }
+
+.disclaimer {
+  position: fixed; z-index: 2; left: var(--gutter); bottom: calc(env(safe-area-inset-bottom, 0px) + var(--gutter));
+  font: 10.5px/1.3 var(--f-mono); color: var(--fg-faint); letter-spacing: 0.02em; max-width: 34ch;
+}
+.loading { position: fixed; inset: 0; display: grid; place-items: center; font: 12px var(--f-mono); color: var(--fg-dim); }
+
+@media (max-width: 720px) {
+  :root { --gutter: 16px; }
+  .panel { width: auto; right: var(--gutter); gap: 12px; }
+  .title h1 { font-size: 21px; }
+  .title p { display: none; }
+  .legend { grid-template-columns: 1fr 1fr; column-gap: 18px; }
+  .legend-head { display: none; }
+  .legend .rate { display: none; }
+  .legend button { grid-template-columns: 14px 1fr auto; padding: 3px 8px; }
+  .legend .label { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .ticker { width: auto; left: var(--gutter); bottom: calc(env(safe-area-inset-bottom, 0px) + 40px); }
+  .ticker li:nth-child(n+4) { display: none; }
+  .disclaimer { max-width: none; right: var(--gutter); }
+  .about .body { max-height: 38vh; }
+}
+@media (max-height: 640px) and (min-width: 721px) { .title p { display: none; } }
+</style>
+</head>
+<body>
+<canvas id="globe" aria-label="Spinning globe showing simulated life events as colored flashes"></canvas>
+
+<div class="loading" id="loading">Loading the planet…</div>
+
+<section class="panel" aria-label="Controls and legend">
+  <header class="title">
+    <h1>Every second <b>on Earth</b></h1>
+    <p>Births, deaths, weddings and more, placed in cities by population and timed by local hour.</p>
+  </header>
+
+  <div>
+    <div class="legend-head" aria-hidden="true"><span></span><span>Event</span><span>Since open</span><span>Per sec</span></div>
+    <ul class="legend" id="legend"></ul>
+  </div>
+
+  <div class="controls">
+    <div class="clock" id="clock">UTC <strong>--:--:--</strong></div>
+    <div class="speed" id="speed" role="group" aria-label="Playback speed">
+      <span class="pill" id="speed-pill"></span>
+      <button type="button" id="speed-1" data-speed="1" aria-pressed="true">1×</button>
+      <button type="button" id="speed-10" data-speed="10" aria-pressed="false">10×</button>
+      <button type="button" id="speed-60" data-speed="60" aria-pressed="false">60×</button>
+    </div>
+    <details class="about" id="about">
+      <summary>How this works</summary>
+      <div class="body" id="about-body"></div>
+    </details>
+  </div>
+</section>
+
+<ol class="ticker" id="ticker" aria-live="off"></ol>
+<div class="disclaimer">Simulated from annual statistics, not a live feed.</div>
+
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="vendor/motion.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

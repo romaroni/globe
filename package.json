@@ -1,0 +1,16 @@
+{
+  "name": "globe-life-events",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:data": "node scripts/build-data.mjs",
+    "serve": "python3 -m http.server 8080"
+  },
+  "devDependencies": {
+    "all-the-cities": "3.1.0",
+    "d3": "7.9.0",
+    "motion": "11.18.2",
+    "topojson-client": "3.1.0",
+    "world-atlas": "2.0.2"
+  }
+}
