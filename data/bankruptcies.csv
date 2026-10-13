@@ -1,0 +1,26 @@
+iso2,count,year,source
+US,452990,2023,US Courts (business 18.9k + personal 434k)
+CA,129000,2023,Office of the Superintendent of Bankruptcy (consumer + business)
+GB,145000,2023,Insolvency Service (individual + company; approx. UK-wide)
+DE,95000,2023,Destatis (consumer + business + former self-employed)
+FR,179000,2023,Banque de France (business failures 57k + surendettement 122k)
+JP,79000,2023,Supreme Court personal bankruptcies + TSR business failures (approx.)
+KR,163000,2023,Supreme Court of Korea (individual rehabilitation + bankruptcy + business)
+AU,19000,2023,AFSA personal + ASIC company insolvencies
+NZ,3000,2023,Insolvency and Trustee Service (approx.)
+NL,5500,2023,CBS business bankruptcies + WSNP (approx.)
+BE,17000,2023,Statbel business failures + collective debt settlement (approx.)
+ES,40000,2023,INE concursal statistics (consumer + business)
+IT,10000,2023,Cerved / ISTAT business failures (approx.)
+PT,6000,2023,approx. national statistics
+AT,13900,2023,KSV1870 (business + private)
+CH,15000,2023,Federal Statistical Office (business + private, approx.)
+SE,17000,2023,Statistics Sweden + Enforcement Authority debt restructuring (approx.)
+NO,7000,2023,Statistics Norway (approx.)
+DK,4500,2023,Statistics Denmark (approx.)
+FI,8000,2023,Statistics Finland business + debt restructuring (approx.)
+IE,1000,2023,approx. Insolvency Service of Ireland + CRO
+PL,24000,2023,Central Economic Information Centre (consumer + business)
+CZ,14000,2023,Ministry of Justice insolvency register (approx.)
+SG,2000,2023,Ministry of Law (approx.)
+BR,3000,2023,Serasa Experian (judicial recovery + bankruptcy, business only)

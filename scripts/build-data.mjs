@@ -100,6 +100,7 @@ const main = async () => {
   if (unmatched.length) console.log('marriage rows without a country match (skipped):', unmatched.join(', '));
 
   const curated = parseCSV(await fs.readFile(path.join(ROOT, 'data/curated.csv'), 'utf8'));
+  const bankruptcies = parseCSV(await fs.readFile(path.join(ROOT, 'data/bankruptcies.csv'), 'utf8'));
 
   // Cities (GeoNames cities1000 via all-the-cities), grouped by ISO2.
   const allCities = require('all-the-cities');
@@ -142,6 +143,8 @@ const main = async () => {
     for (const c of curated.filter(c => c.iso2 === iso2)) {
       put(c.type, parseFloat(c.rate_per_1000) / 1000 * P, +c.year, c.source);
     }
+
+    for (const b of bankruptcies.filter(b => b.iso2 === iso2)) put('bankruptcy', +b.count, +b.year, b.source);
 
     let cities = (byCountry.get(iso2) || []).sort((a, b) => b.population - a.population);
     const big = cities.filter(c => c.population >= CITY_MIN_POP);

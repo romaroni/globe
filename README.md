@@ -1,7 +1,7 @@
 # Every Second on Earth
 
 A spinning globe of simulated life events (births, deaths, marriages, divorces, graduations,
-new businesses, patent filings and migrations), happening in real time, in real cities.
+new businesses, patent filings, bankruptcies and migrations), happening in real time, in real cities.
 
 **It is a simulation, not a live feed.** Annual national statistics are turned into
 per-second random streams and placed on the map.
@@ -31,7 +31,7 @@ npm run build:data
    normalised so annual totals are unchanged:
    - **24/7:** births (slight morning lean from scheduled deliveries), deaths (slight early-morning peak), migrations
    - **Awake only, 08:00–20:00 local, nothing overnight:** weddings (peak Saturday afternoons), divorces,
-     new businesses and patents (weekday office hours), graduations (daytime)
+     new businesses, patents and bankruptcies (weekday office hours), graduations (daytime)
 5. **Migration arcs.** Destinations are weighted by positive net migration; origins by net emigration
    with a distance decay (most moves are regional). Net flows understate gross flows, so this is
    a lower bound.
@@ -47,6 +47,7 @@ npm run build:data
 | Graduations | Modeled | birth cohort 22 years earlier × WDI `SE.TER.ENRR` (capped at 100%) × 0.7 |
 | New businesses | World Bank WDI `IC.BUS.NREG` | formal limited-liability registrations only |
 | Patent filings | World Bank WDI `IP.PAT.RESD` + `IP.PAT.NRES` | |
+| Bankruptcies | `data/bankruptcies.csv` | hand-compiled business + personal filings, ~25 countries, approx. 2023; drawn as a collapsing ring |
 | Migrations | World Bank WDI `SM.POP.NETM` (UN WPP) | net, not gross |
 | Cities | GeoNames via `all-the-cities` | |
 | Base map | `world-atlas` 110m (Natural Earth) | |

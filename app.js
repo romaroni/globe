@@ -11,6 +11,7 @@
     { id: 'graduation', label: 'Graduations',    one: 'Graduation' },
     { id: 'business',   label: 'New businesses', one: 'New business' },
     { id: 'patent',     label: 'Patent filings', one: 'Patent filed' },
+    { id: 'bankruptcy', label: 'Bankruptcies',   one: 'Bankruptcy', implode: true },
     { id: 'migration',  label: 'Migrations',     one: 'Migration', arc: true },
   ];
   const rootStyle = getComputedStyle(document.documentElement);
@@ -37,6 +38,7 @@
     divorce:    awakeOnly(office),                         // courts and registries keep office hours
     business:   awakeOnly(office),
     patent:     awakeOnly(office),
+    bankruptcy: awakeOnly(office),
     graduation: awakeOnly((h, d) => (d === 0 ? 0.4 : 1) * (0.15 + bump(h, 13, 3))),
   };
   // Normalise each curve to a weekly mean of 1 so annual totals are preserved; thinning uses max.
@@ -243,9 +245,10 @@
       const [x, y] = projection([e.lon, e.lat]);
       const fade = 1 - age;
       const s = bloomAt(el);
+      const ring = TYPE[e.type].implode ? 1.5 + 11 * Math.max(0, 1 - s) : 1.5 + 9 * s;   // bankruptcies collapse inward
       ctx.globalAlpha = 0.55 * fade * fade;
       ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.arc(x, y, 1.5 + 9 * s, 0, 2 * Math.PI); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, ring, 0, 2 * Math.PI); ctx.stroke();
       ctx.globalAlpha = 0.18 * fade;
       ctx.beginPath(); ctx.arc(x, y, 1 + 4 * s, 0, 2 * Math.PI); ctx.fill();
       ctx.globalAlpha = fade;
@@ -294,7 +297,7 @@
     for (const t of TYPES) {
       const li = document.createElement('li');
       li.innerHTML = `<button type="button" id="toggle-${t.id}" aria-pressed="true" style="--c:${t.color}">
-        <span class="swatch${t.arc ? ' arc' : ''}"></span><span class="label">${t.label}</span>
+        <span class="swatch${t.arc ? ' arc' : t.implode ? ' ring' : ''}"></span><span class="label">${t.label}</span>
         <span class="count">0</span><span class="rate"></span></button>`;
       const btn = li.firstElementChild;
       btn.addEventListener('click', () => {
@@ -367,6 +370,7 @@
       graduation: 'Modeled: birth cohort from 22 years earlier × WDI tertiary enrolment ratio × 0.7',
       business: 'World Bank WDI new businesses registered',
       patent: 'World Bank WDI patent applications, residents + non-residents',
+      bankruptcy: 'Hand-compiled business + personal filings (courts, insolvency services), ~25 countries',
       migration: 'World Bank WDI net migration (UN WPP); origins weighted by net emigration and distance',
     };
     const rows = TYPES.map(t => `<tr><td>${t.label}</td><td>${sources[t.id]}</td>
@@ -374,7 +378,7 @@
     document.getElementById('about-body').innerHTML = `
       <p>Each country's annual count becomes a random stream of events in real time. Every event lands in one of the
       country's cities, picked with odds proportional to population, then is kept or dropped by the local hour.</p>
-      <p>Births, deaths and migrations happen around the clock. Weddings, divorces, graduations, new businesses and patents
+      <p>Births, deaths and migrations happen around the clock. Weddings, divorces, graduations, new businesses, patents and bankruptcies
       happen only while people are awake, 08:00–20:00 local time, so the night side of the globe goes quiet for them.
       Within those hours weddings peak on Saturday afternoons and the paperwork events follow weekday office hours.</p>
       <p>Coverage and methods differ by country and type, so a missing country means missing data, not zero events.</p>
