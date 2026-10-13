@@ -75,7 +75,7 @@
   let W = 0, H = 0, DPR = 1;
   const BASE_SPIN = 360 / 86400;   // °/s: one turn per day at 1×, i.e. the real Earth; scales with playback speed
   const MAX_DRAWN_PER_SEC = 3000;  // above this, draw a random sample of events (counters stay exact)
-  const view = { zoom: reduceMotion ? 1 : 0.82, speed: 1, spin: 1 };   // spin: 0–1 factor, 0 while dragging
+  const view = { zoom: reduceMotion ? 1 : 0.82, speed: 100, spin: 1 };   // spin: 0–1 factor, 0 while dragging
   const rotation = [new Date().getTimezoneOffset() / 4, -18, 0];                         // start over the viewer's longitude
   let simMs = Date.now();
   const enabled = Object.fromEntries(TYPES.map(t => [t.id, true]));
@@ -424,7 +424,7 @@
       streams = buildStreams(data);
       buildLegend(); buildAbout(data);
       resize();
-      placePill(document.getElementById('speed-1'), true);
+      placePill(document.getElementById('speed-100'), true);
       document.getElementById('loading').remove();
       if (!reduceMotion) {
         animate(view.zoom, 1, { type: 'spring', stiffness: 50, damping: 13, onUpdate: v => { view.zoom = v; } });
