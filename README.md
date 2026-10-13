@@ -27,12 +27,11 @@ npm run build:data
    Globally that's about 4.2 births/s, 1.9 deaths/s, 1.3 marriages/s.
 3. **City by population.** Every event lands in one of the country's cities (GeoNames, 15k+ residents,
    top 250 per country), picked with odds proportional to population.
-4. **Local-time rhythm.** Events are thinned by a curve over the city's local solar hour and weekday,
+4. **Sleep/awake cycle.** Each event is kept or dropped by the city's local solar hour and weekday,
    normalised so annual totals are unchanged:
-   - weddings peak on Saturday afternoons
-   - divorces, new businesses and patents follow weekday office hours
-   - births lean to the morning (scheduled deliveries), deaths to the early morning
-   - graduations happen in the daytime, migration arrivals mostly in the daytime
+   - **24/7:** births (slight morning lean from scheduled deliveries), deaths (slight early-morning peak), migrations
+   - **Awake only, 08:00–20:00 local, nothing overnight:** weddings (peak Saturday afternoons), divorces,
+     new businesses and patents (weekday office hours), graduations (daytime)
 5. **Migration arcs.** Destinations are weighted by positive net migration; origins by net emigration
    with a distance decay (most moves are regional). Net flows understate gross flows, so this is
    a lower bound.
@@ -55,6 +54,8 @@ npm run build:data
 Methodology is deliberately inconsistent across countries and types. The point is texture, not accounting.
 
 ## Stack
+
+Playback runs at 1× (one globe turn per day, the real Earth), 100× or 500×.
 
 Canvas 2D + `d3-geo` orthographic projection, `topojson-client`, and [Motion](https://motion.dev):
 its spring generator shapes every event's bloom, and it animates the intro zoom, speed changes,

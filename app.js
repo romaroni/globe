@@ -22,16 +22,22 @@
 
   // ---- Daily rhythm by local hour (h, 0–24) and local weekday (d, 0 = Sunday) ----------------
   const bump = (h, c, w) => { let d = Math.abs(h - c); d = Math.min(d, 24 - d); return Math.exp(-(d * d) / (2 * w * w)); };
-  const office = (h, d) => (d > 0 && d < 6 ? 1 : 0.12) * (h >= 8.5 && h < 17.5 ? 1 : 0.04);
+  // Two groups. 24/7 events happen at any hour. Awake-only events happen only while people are up:
+  // a 12-hour local window (08:00–20:00) and nothing overnight. Inside the window each keeps its own shape.
+  const AWAKE_FROM = 8, AWAKE_TO = 20;
+  const awakeOnly = f => (h, d) => (h >= AWAKE_FROM && h < AWAKE_TO ? f(h, d) : 0);
+  const office = (h, d) => (d > 0 && d < 6 ? 1 : 0.12) * (h >= 8.5 && h < 17.5 ? 1 : 0.15);
   const RHYTHM = {
+    // 24/7
     birth:      h => 0.85 + 0.35 * bump(h, 10, 3),        // scheduled deliveries skew to the morning
     death:      h => 0.9 + 0.2 * bump(h, 5, 4),           // slight early-morning peak
-    marriage:   (h, d) => (d === 6 ? 3 : d === 5 || d === 0 ? 1.6 : 0.7) * (0.03 + bump(h, 15, 3)),
-    divorce:    office,                                    // courts and registries keep office hours
-    business:   office,
-    patent:     (h, d) => office(h, d) + 0.05,             // plus round-the-clock online filing
-    graduation: (h, d) => (d === 0 ? 0.4 : 1) * (0.02 + bump(h, 13, 3)),
-    migration:  h => 0.4 + bump(h, 14, 5),                 // arrivals, mostly daytime
+    migration:  () => 1,                                   // arrivals land around the clock
+    // awake only
+    marriage:   awakeOnly((h, d) => (d === 6 ? 3 : d === 5 || d === 0 ? 1.6 : 0.7) * (0.15 + bump(h, 15, 3))),
+    divorce:    awakeOnly(office),                         // courts and registries keep office hours
+    business:   awakeOnly(office),
+    patent:     awakeOnly(office),
+    graduation: awakeOnly((h, d) => (d === 0 ? 0.4 : 1) * (0.15 + bump(h, 13, 3))),
   };
   // Normalise each curve to a weekly mean of 1 so annual totals are preserved; thinning uses max.
   for (const t of TYPES) {
@@ -364,8 +370,10 @@
       <td class="n">${data.coverage[t.id] || 0}</td><td class="n">${(data.totals[t.id] / 1e6).toFixed(1)}M/yr</td></tr>`).join('');
     document.getElementById('about-body').innerHTML = `
       <p>Each country's annual count becomes a random stream of events in real time. Every event lands in one of the
-      country's cities, picked with odds proportional to population, then is kept or dropped by a local-hour rhythm:
-      weddings cluster on Saturday afternoons, divorces and new businesses on weekday office hours, births lean to the morning.</p>
+      country's cities, picked with odds proportional to population, then is kept or dropped by the local hour.</p>
+      <p>Births, deaths and migrations happen around the clock. Weddings, divorces, graduations, new businesses and patents
+      happen only while people are awake, 08:00–20:00 local time, so the night side of the globe goes quiet for them.
+      Within those hours weddings peak on Saturday afternoons and the paperwork events follow weekday office hours.</p>
       <p>Coverage and methods differ by country and type, so a missing country means missing data, not zero events.</p>
       <table><tbody>${rows}</tbody></table>
       <p>Countries counted · yearly total. Cities: GeoNames (15k+ residents, top 250 per country). Data built ${data.generated}.</p>`;
