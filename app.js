@@ -245,14 +245,20 @@
       const [x, y] = projection([e.lon, e.lat]);
       const fade = 1 - age;
       const s = bloomAt(el);
-      // Beginnings bloom outward; endings (deaths, divorces, bankruptcies) collapse inward.
-      const k = TYPE[e.type].implode ? Math.max(0, 1 - s) : s;
-      const ring = TYPE[e.type].implode ? 1.5 + 11 * k : 1.5 + 9 * k;
+      if (TYPE[e.type].implode) {
+        // Endings (deaths, divorces, bankruptcies): a hollow ring that collapses inward to a small open circle.
+        const k = Math.max(0, 1 - bloomAt(el * 0.45));   // same spring, played ~2× slower so the collapse reads
+        ctx.lineWidth = 1.2;
+        ctx.globalAlpha = 0.9 * fade;
+        ctx.beginPath(); ctx.arc(x, y, 2.2 + 11 * k, 0, 2 * Math.PI); ctx.stroke();
+        continue;
+      }
+      // Beginnings and everything else: a filled dot with a ring that blooms outward.
       ctx.globalAlpha = 0.55 * fade * fade;
       ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.arc(x, y, ring, 0, 2 * Math.PI); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, 1.5 + 9 * s, 0, 2 * Math.PI); ctx.stroke();
       ctx.globalAlpha = 0.18 * fade;
-      ctx.beginPath(); ctx.arc(x, y, 1 + 4 * k, 0, 2 * Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 1 + 4 * s, 0, 2 * Math.PI); ctx.fill();
       ctx.globalAlpha = fade;
       ctx.beginPath(); ctx.arc(x, y, 1.6, 0, 2 * Math.PI); ctx.fill();
     }
