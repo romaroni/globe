@@ -144,7 +144,9 @@
     return { h, dow };
   };
 
+  const TICKER_RADIUS = 70 * Math.PI / 180;   // "front face": within 70° of the point facing the viewer
   function spawn(simDtSec, now) {
+    const viewCenter = [-rotation[0], -rotation[1]];
     const life = 2600 / Math.pow(view.speed, 0.12);
     const totalPerSec = TYPES.reduce((a, t) => a + (streams[t.id]?.perSec || 0), 0) * view.speed;
     const drawShare = Math.min(1, MAX_DRAWN_PER_SEC / totalPerSec);
@@ -171,7 +173,8 @@
           ev = { type: t.id, lon: city[1], lat: city[2], t0: now, life, city: city[0], country: c.name, h };
         }
         events.push(ev);
-        if (Math.random() * ++seenSinceTick < 1) latestForTicker = ev;   // uniform sample since the last ticker line
+        // Ticker: uniform sample of events on the globe's front face (migrations by where they land).
+        if (d3.geoDistance(ev.to || [ev.lon, ev.lat], viewCenter) < TICKER_RADIUS && Math.random() * ++seenSinceTick < 1) latestForTicker = ev;
       }
     }
     if (events.length > 5000) events.splice(0, events.length - 5000);
