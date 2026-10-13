@@ -47,10 +47,13 @@ npm run build:data
 | Graduations | Modeled | birth cohort 22 years earlier × WDI `SE.TER.ENRR` (capped at 100%) × 0.7 |
 | New businesses | World Bank WDI `IC.BUS.NREG` | formal limited-liability registrations only |
 | Patent filings | World Bank WDI `IP.PAT.RESD` + `IP.PAT.NRES` | |
-| Bankruptcies | `data/bankruptcies.csv` | hand-compiled business + personal filings, ~25 countries, approx. 2023; drawn as a collapsing ring |
+| Bankruptcies | `data/bankruptcies.csv` | hand-compiled business + personal filings, ~25 countries, approx. 2023 |
 | Migrations | World Bank WDI `SM.POP.NETM` (UN WPP) | net, not gross |
 | Cities | GeoNames via `all-the-cities` | |
 | Base map | `world-atlas` 110m (Natural Earth) | |
+
+Beginnings (births, weddings, new businesses) bloom outward; endings (deaths, divorces, bankruptcies)
+collapse inward.
 
 Methodology is deliberately inconsistent across countries and types. The point is texture, not accounting.
 

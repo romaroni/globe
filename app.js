@@ -5,9 +5,9 @@
 
   const TYPES = [
     { id: 'birth',      label: 'Births',         one: 'Birth' },
-    { id: 'death',      label: 'Deaths',         one: 'Death' },
+    { id: 'death',      label: 'Deaths',         one: 'Death', implode: true },
     { id: 'marriage',   label: 'Marriages',      one: 'Wedding' },
-    { id: 'divorce',    label: 'Divorces',       one: 'Divorce' },
+    { id: 'divorce',    label: 'Divorces',       one: 'Divorce', implode: true },
     { id: 'graduation', label: 'Graduations',    one: 'Graduation' },
     { id: 'business',   label: 'New businesses', one: 'New business' },
     { id: 'patent',     label: 'Patent filings', one: 'Patent filed' },
@@ -245,12 +245,14 @@
       const [x, y] = projection([e.lon, e.lat]);
       const fade = 1 - age;
       const s = bloomAt(el);
-      const ring = TYPE[e.type].implode ? 1.5 + 11 * Math.max(0, 1 - s) : 1.5 + 9 * s;   // bankruptcies collapse inward
+      // Beginnings bloom outward; endings (deaths, divorces, bankruptcies) collapse inward.
+      const k = TYPE[e.type].implode ? Math.max(0, 1 - s) : s;
+      const ring = TYPE[e.type].implode ? 1.5 + 11 * k : 1.5 + 9 * k;
       ctx.globalAlpha = 0.55 * fade * fade;
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(x, y, ring, 0, 2 * Math.PI); ctx.stroke();
       ctx.globalAlpha = 0.18 * fade;
-      ctx.beginPath(); ctx.arc(x, y, 1 + 4 * s, 0, 2 * Math.PI); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 1 + 4 * k, 0, 2 * Math.PI); ctx.fill();
       ctx.globalAlpha = fade;
       ctx.beginPath(); ctx.arc(x, y, 1.6, 0, 2 * Math.PI); ctx.fill();
     }
